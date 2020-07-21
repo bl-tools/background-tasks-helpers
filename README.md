@@ -1,20 +1,48 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+## Installation
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Add package to endpoint project ('{solutionName}.App')
+```
+Install-Package Common.QuartzNetBackgroundTaskHelpers
+```
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+## Registration
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+In DependencyConfig register using helper below.
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+```c#
+services.AddBackgroundTasks(context.Configuration, "BackgroundTasks");
+```
+
+Tasks are defined via configuration. Configuratino section name passed as parameter.
+
+Sample config section
+```json
+{
+  "BackgroundTasks": {
+    "TaskName1": {
+      "TaskType": "Abc.Product.Service.Tasks.ImportTask,Abc.Product.Service",
+      "IntervalSeconds": 20,
+      "StartDelaySeconds": 2
+    },
+    "TaskName2": {
+      "TaskType": "Abc.Product.Service.Tasks.ExportTask,Abc.Product.Service",
+      "IntervalSeconds": 20,
+      "StartDelaySeconds": 5
+    }
+  }
+}
+```
+Note: TaskName1 and TaskName2 are just descriptive names of tasks. 
+TaskType - fully qualified type name of task class (the one that implements `IJob`)
+
+## Define Tasks
+Tasks are defined in project '{solutionName}.Service'.
+Need to install Quartz.NET package:
+```
+Install-Package Quartz
+```
+
+Then create task classes. The only requirement - implement interface `IJob`.
+Also `DisallowConcurrentExecution` attribute can be used to prevent multiple copies of the same task to run simultaneously.
+
+Dependency Injections is fully supported. 
